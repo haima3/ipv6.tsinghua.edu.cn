@@ -34,7 +34,7 @@ ip6tables kmod-ipt-nat6 kmod-ip6tables kmod-ip6tables-extra luci-proto-ipv6 iput
 
  为了让OpenWRT后面的设备始终能够获得IPv6网关，需要在`Network->Interfaces->LAN`下方的`DHCP Server`部分的`IPv6 Settings`部分，勾选`Always announce default router`。否则，由于默认分配的是私网地址，OpenWRT不会向下游设备公布IPv6默认路由(即网关)，可能导致路由器上IPv6连通但下游设备不通的情况 (感谢[@terro](https://github.com/terro)提醒)
 
-### 贰: 打开 IPv6 NAT
+### 贰: 打开 IPv6 NAT (可选，一般情况下不推荐 请仅在必要时使用)
 
 客户端有了正确的地址以后，需要在路由器上打开IPv6 NAT。OpenWRT默认的防火墙配置不会管IPv6的nat表，可以在`/etc/firewall.user`里面加上
 
@@ -72,3 +72,18 @@ logger -t IPv6 "Add IPv6 default route."
 ```
 chmod +x /etc/hotplug.d/iface/99-ipv6
 ```
+### 肆：防火墙配置
+
+为保证在IPv6全公网地址环境下的安全性，强烈建议您配置防火墙。
+
+首先创建防火墙区域，名称随意，按照您的需要进行配置，这里将不给出具体配置，但可参考如下建议：
+
+1. FORWARD在没有NAT的情况下选择DROP即可
+
+2. INPUT自行按照需求创建自定义规则
+
+3. OUTPUT选择ACCEPT
+
+4. 匹配危险端口执行DROP操作
+
+5. 部分端口建议配置IP白名单或仅允许LAN访问（例如SSH）
